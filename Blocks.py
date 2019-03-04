@@ -6,6 +6,7 @@ PLATFORM_HEIGHT = 40
 PLATFORM_COLOR = "green"
 АRROW_COLOR = "black"
 FLAME_COLOR = "red"
+SPEED_OF_FIREBALL = 5
 
 
 class Platform(sprite.Sprite):
@@ -22,6 +23,7 @@ class Flame(Platform):
         Platform.__init__(self, x, y)
         self.image = Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
         self.image.fill(Color(FLAME_COLOR))
+
         #self.image = image.load("%s/flame.png" % ICON_DIR)
 
 
@@ -53,3 +55,13 @@ class Door(Platform):
         self.image.set_colorkey((0, 0, 0))
         self.image = image.load("./images/Blocks/door.png")
         self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+
+
+class Exit(Platform):
+    def __init__(self, x, y):
+        Platform.__init__(self, x, y)
+        self.image.fill(Color("black"))
+        self.image.set_colorkey((0, 0, 0))
+        self.image = image.load("./images/Blocks/exit.png")
+        self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
+

@@ -14,3 +14,4 @@ def check_img(img, size):
         image = pygame.transform.scale(image, (size, size))
 
     return image
+

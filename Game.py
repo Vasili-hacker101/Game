@@ -1,12 +1,11 @@
 import sys
 import pygame
+from PIL import Image
 from Player import *
-from Blocks import *
+from Blocks import Platform
 from Items import *
 from Levels import *
 from Monsters import *
-import random
-#from Menu import *
 
 WIN_WIDTH = 1280
 WIN_HEIGHT = 720
@@ -19,30 +18,54 @@ class Menu:
 
     def __init__(self, punkts):
         self.punkts = punkts
+        self.background = BACKGROUND_IMAGE_MENU
 
     def render(self, canvas, font, num_punkt):
         for i in self.punkts:
-            if num_punkt == i[5]:   # Пятый элемент - не хухры-мухры!
+            if num_punkt == i[5]:
                 canvas.blit(font.render(i[2], 1, i[4]), (i[0], i[1]))
             else:
                 canvas.blit(font.render(i[2], 1, i[3]), (i[0], i[1]))
 
-    def menu(self):
+    def menu(self, last_frame=False):
         global screen
         done = True
-        font_menu = pygame.font.SysFont("Comic Sans MS", 100, True)   # ШРИФТ!!!
+        font_menu = pygame.font.SysFont("Comic Sans MS", 100, True)
         font_name = pygame.font.SysFont("Comic Sans MS", 120, True)
         name_of_game = pygame.Surface((1280, 180))
         name_of_game_str = u"  while True"
         name_of_game.fill((0, 0, 0))
         name_of_game.set_colorkey((0, 0, 0))
         name_of_game.blit(font_name.render(name_of_game_str, 1, (255, 255, 255)), (10, 5))
-        pygame.key.set_repeat(0,0)  #Вырубим повторение клавиш
+        pygame.key.set_repeat(0,0)
         pygame.mouse.set_visible(True)
         punkt = 0
         while done:
             screen.fill((0, 0, 0))
-            screen.blit(BACKGROUND_IMAGE_MENU, (0, 0))
+           # if self.img is None:
+           #     screen.blit(BACKGROUND_IMAGE_MENU, (0, 0))
+           # else:
+            #if last_frame:
+            #    pil_string_image = pygame.image.tostring(pygame.display.get_surface(), "RGB", False)
+            #    im = Image.frombytes("RGB", (1280, 720), pil_string_image)
+            #    pixels = im.load()
+            #    x, y = im.width, im.height
+            #    im2 = Image.new("RGB", (x, y), (0, 0, 0))
+            #    pixels2 = im2.load()
+            #    for i in range(x):
+            #        for j in range(y):
+            #                r, g, b = pixels[i, j]
+            #                bw = (r + g + b) // 3
+            #                pixels2[i, j] = bw
+            #    im.save("1.jpeg")
+            #    im2.save("2.jpeg")
+
+            #    data = im2.tobytes()
+            #    image = pygame.image.fromstring(data, im.size, "RGB")
+            #    screen.blit(image, (0, 0))
+            #else:
+            screen.blit(self.background, (0, 0))
+
             screen.blit(name_of_game, (0, 50))
             mp = pygame.mouse.get_pos()
             for i in self.punkts:
@@ -108,11 +131,6 @@ def camera_configure(cam, target_rect):
 
     return Rect(l, t, w, h)
 
-
-
-
-
-
 # Ф У Н К Ц И Я  О Т Р И С О В К И  К А Д Р А
 
 
@@ -122,6 +140,13 @@ def Draw_Game(do_flip):
 
     for i in items:
         i.update(hero)
+
+    for i in platforms:
+        if isinstance(i, Flame) or\
+           isinstance(i, Exit) or \
+           isinstance(i, Right_Arrow) or\
+           isinstance(i, Left_Arrow):
+            i.update()
 
     for i in monsters:
         i.update(platforms)
@@ -144,9 +169,9 @@ def Draw_Game(do_flip):
     message.set_colorkey((0, 0, 0))
     if hero.level_passed:
 
-        lvl_passed_str = u"Вы прошли уровень" + str(num_of_level + 1) + "!"
+        lvl_passed_str = u"            Вы прошли уровень " + str(num_of_level + 1)
         if num_of_level == len(levels) - 1:
-            lvl_passed_str = u"Вы прошли игру! Ваш счет: " + str(hero.num_of_coins)
+            lvl_passed_str = u"       Вы прошли игру! Ваш счет: " + str(hero.num_of_coins)
         message.blit(message_font.render(lvl_passed_str, 1, (255, 255, 255)), (10, 5))
 
     if do_flip:
@@ -155,7 +180,7 @@ def Draw_Game(do_flip):
     else:
         screen.blit(e.image, (0, 0))
     screen.blit(info, (0, 0))
-    screen.blit(message, (0, 360))
+    screen.blit(message, (0, 300))
     pygame.display.update()
 
 
@@ -193,11 +218,6 @@ def create_level(level):
                 trampoline = Trampoline(x, y)
                 entities.add(trampoline)
                 platforms.append(trampoline)
-
-            elif col == "|":
-                door = Door(x, y)
-                entities.add(door)
-                platforms.append(door)
 
             elif col == "e":
                 exit = Exit(x, y)
@@ -248,7 +268,6 @@ bg = Surface((WIN_WIDTH, WIN_HEIGHT))
 bg.fill(Color(BACKGROUND_COLOR))
 
 
-
 # С О З Д А Н И Е  С Т Р О К И  С О С Т О Я Н И Я
 
 info = pygame.Surface((1280, 30))
@@ -256,7 +275,7 @@ pygame.font.init()
 info_font = pygame.font.Font(None, 40)
 
 message = pygame.Surface((1280, 120))
-message_font = pygame.font.SysFont("Comic Sans MS", 80, True)
+message_font = pygame.font.SysFont("Comic Sans MS", 60, True)
 
 # С О З Д А Н И Е  С П И С К О В  О Б Ъ Е К Т О В
 
@@ -265,7 +284,6 @@ platforms = []
 items = []
 monsters = []
 levels = [level, level2, level3]
-# levels = [level]
 
 # З А П О Л Н Е Н И Е  С П И С К О В  О Б Ъ Е К Т О В
 
@@ -276,7 +294,6 @@ total_level_width, total_level_height, hero, run, right, left, up = create_level
 pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.mixer.init()
 pygame.mixer.music.load('Music/main_music.ogg')
-sound = pygame.mixer.Sound('Music/main_music.ogg')
 
 
 # М е н ю
@@ -287,17 +304,11 @@ start_punkts = [(x_menu, y_menu, u'Игра', (150,150,150), (50,250,50), 0),
               (x_menu, y_menu + 120, u'Выход', (150,150,150), (50,250,50), 1)]
 start_menu = Menu(start_punkts)
 
-#resume_punkts = [(x_menu, y_menu, u'Игра', (150,150,150), (50,250,50), 0),
-#              (x_menu, y_menu + 120, u'Выход', (150,150,150), (50,250,50), 1)]
-#resume_menu = Menu(resume_punkts)
-start_menu.menu()
-#sound.play(-1)
-pygame.mixer.music.play(-1)
+
 while True:
-
-
-
-    #О С Н О В Н О Й  И Г Р О В О Й  Ц И К Л
+    start_menu.menu()
+    pygame.mixer.music.play(-1)
+#О С Н О В Н О Й  И Г Р О В О Й  Ц И К Л
 
     camera = Camera(camera_configure, total_level_width, total_level_height)
     running = True
@@ -316,7 +327,8 @@ while True:
         elif hero.level_passed:
             num_of_level += 1
             pygame.mixer.music.stop()
-            pygame.time.wait(4000)
+            hero.sound_level_passed.play()
+            pygame.time.wait(5200)
             if num_of_level != len(levels):
 
                 total_level_width, total_level_height, hero, run, right, left, up = create_level(levels[num_of_level])
@@ -326,7 +338,8 @@ while True:
                 num_of_level = 0
                 start_menu.menu()
                 total_level_width, total_level_height, hero, run, right, left, up = create_level(levels[num_of_level])
-
+                camera = Camera(camera_configure, total_level_width, total_level_height)
+                pygame.mixer.music.play()
 
         for e in pygame.event.get():
 
@@ -336,7 +349,7 @@ while True:
             if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                 run = up = left = right = False
                 pygame.mixer.music.pause()
-                start_menu.menu()
+                start_menu.menu(True)
             if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
                 up = True
             if e.type == pygame.KEYDOWN and e.key == pygame.K_LEFT:

@@ -12,12 +12,19 @@ HEIGHT = 40
 COLOR = "blue"
 JUMP_POWER = 10
 GRAVITY = 0.25
-IMAGE_STAY = image.load("./images/Player/hero.png")
+
+IMAGE_PLAYER_STAY = image.load("./images/Player/hero.png")
+IMAGE_PLAYER_RIGHT = image.load("./images/Player/hero_right2.png")
+IMAGE_PLAYER_LEFT = image.load("./images/Player/hero_left2.png")
+IMAGE_PLAYER_UP = image.load("./images/Player/hero_up2.png")
+IMAGE_PLAYER_DIE = image.load("./images/Player/hero_die.png")
+
 mixer.pre_init(44100, -16, 1, 512)
 mixer.init()
 
 
 class Player(sprite.Sprite):
+
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
         self.x_speed = 0
@@ -36,22 +43,26 @@ class Player(sprite.Sprite):
         self.image = Surface((WIDTH, HEIGHT))
         self.image.fill(Color(COLOR))
         self.image.set_colorkey((0, 0, 0))
-        self.image = IMAGE_STAY
+
+        self.image_player_stay = image.load("./images/Player/hero.png")
+
+        self.image = IMAGE_PLAYER_STAY
 
         self.frames = []
 
         self.rect = Rect(x, y, WIDTH, HEIGHT)
+
         self.sound_of_jump = mixer.Sound('Music/jump.ogg')
         self.sound_of_death = mixer.Sound('Music/game_over.ogg')
         self.sound_of_collecting_coins = mixer.Sound('Music/sound_of_coin.ogg')
+        self.sound_level_passed = mixer.Sound('Music/level_passed.ogg')
 
     def update(self, run, left, right, up, platforms, monsters):
 
         if up:
             if self.onGround:
                 self.y_speed = -JUMP_POWER
-                self.image.fill((0, 0, 0))
-                self.image = image.load("./images/Player/hero_up2.png")
+                self.image = IMAGE_PLAYER_UP
                 self.sound_of_jump.play()
 
         if left:
@@ -59,8 +70,7 @@ class Player(sprite.Sprite):
 
             if run:
                 self.x_speed = -SPRINT_SPEED
-            self.image.fill((0, 0, 0))
-            self.image = image.load("./images/Player/hero_left2.png")
+            self.image = IMAGE_PLAYER_LEFT
 
         if right:
             self.x_speed = MOVE_SPEED
@@ -68,14 +78,12 @@ class Player(sprite.Sprite):
             if run:
                 self.x_speed = SPRINT_SPEED
 
-            self.image.fill((0, 0, 0))
-            self.image = image.load("./images/Player/hero_right2.png")
+            self.image = IMAGE_PLAYER_RIGHT
 
         if not (left or right):
             self.x_speed = 0
             if not up:
-                self.image.fill((0, 0, 0))
-                self.image = image.load("./images/Player/hero.png")
+                self.image = IMAGE_PLAYER_STAY
 
         if not self.onGround:
             self.y_speed += GRAVITY
@@ -89,11 +97,11 @@ class Player(sprite.Sprite):
 
     def die(self):
         self.dead = True
-        self.image.fill((0, 0, 0))
+        self.image = IMAGE_PLAYER_DIE
 
     def respawn(self):
         self.dead = False
-        self.image = IMAGE_STAY
+        self.image = IMAGE_PLAYER_STAY
         self.x_speed = 0
         self.y_speed = 0
         self.teleporting(self.startX, self.startY)
@@ -128,18 +136,14 @@ class Player(sprite.Sprite):
                     if isinstance(p, Flame):
                         self.die()
                     elif isinstance(p, Right_Arrow):
-                        self.x_speed += 15
+                        self.x_speed += 5
 
                     elif isinstance(p, Left_Arrow):
-                        self.x_speed -= 15
+                        self.x_speed -= 5
 
                     elif isinstance(p, Trampoline):
                         self.y_speed = -self.save_y * 1.25
                         self.sound_of_jump.play()
-
-                if isinstance(p, Door):
-                    if self.num_of_keycards > 0:
-                        self.num_of_keycards -= 1
 
                 if isinstance(p, Exit):
                     if self.num_of_keycards > 0:

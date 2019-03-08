@@ -29,7 +29,9 @@ class Player(sprite.Sprite):
         sprite.Sprite.__init__(self)
         self.x_speed = 0
         self.y_speed = 0
+
         self.save_y = 0
+        self.save_x = 0
 
         self.startX = x
         self.startY = y
@@ -115,11 +117,13 @@ class Player(sprite.Sprite):
             if sprite.collide_rect(self, p):
 
                 if x_speed > 0:
+                    self.save_x = self.x_speed
                     self.rect.right = p.rect.left
 
 
 
                 if x_speed < 0:
+                    self.save_x = self.x_speed
                     self.rect.left = p.rect.right
 
                 if y_speed > 0:
@@ -130,6 +134,7 @@ class Player(sprite.Sprite):
 
                 if y_speed < 0:
                     self.rect.top = p.rect.bottom
+                    self.save_y = self.y_speed
                     self.y_speed = 0
 
                 if self.rect.bottom == p.rect.top:
@@ -150,6 +155,8 @@ class Player(sprite.Sprite):
                         self.level_passed = True
 
                 elif isinstance(p, Item):
+                    self.x_speed = self.save_x
+                    self.y_speed = self.save_y
                     p.image.fill(Color("green"))
                     p.rect = Rect(0, 0, 0, 0)
                     if p.name == "coin":

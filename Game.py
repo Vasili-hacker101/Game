@@ -40,32 +40,24 @@ class Menu:
         pygame.key.set_repeat(0,0)
         pygame.mouse.set_visible(True)
         punkt = 0
+        if last_frame:
+            pygame.image.save(pygame.display.get_surface(), "./images/Background/last_frame.jpeg")
+            pil_image = Image.open("./images/Background/last_frame.jpeg")
+            x, y = pil_image.width, pil_image.height
+            pixels = pil_image.load()
+            im2 = Image.new('RGB', (1280, 720), (0, 0, 0))
+            pixels2 = im2.load()
+            for i in range(x):
+                for j in range(y):
+                    r, g, b = pixels[i, j]
+                    bw = (r + g + b) // 3
+                    pixels2[i, j] = bw, bw, bw
+            im2.save("./images/Background/last_frame.jpeg")
+            self.background = pygame.image.load("./images/Background/last_frame.jpeg")
+
         while done:
             screen.fill((0, 0, 0))
-           # if self.img is None:
-           #     screen.blit(BACKGROUND_IMAGE_MENU, (0, 0))
-           # else:
-            #if last_frame:
-            #    pil_string_image = pygame.image.tostring(pygame.display.get_surface(), "RGB", False)
-            #    im = Image.frombytes("RGB", (1280, 720), pil_string_image)
-            #    pixels = im.load()
-            #    x, y = im.width, im.height
-            #    im2 = Image.new("RGB", (x, y), (0, 0, 0))
-            #    pixels2 = im2.load()
-            #    for i in range(x):
-            #        for j in range(y):
-            #                r, g, b = pixels[i, j]
-            #                bw = (r + g + b) // 3
-            #                pixels2[i, j] = bw
-            #    im.save("1.jpeg")
-            #    im2.save("2.jpeg")
-
-            #    data = im2.tobytes()
-            #    image = pygame.image.fromstring(data, im.size, "RGB")
-            #    screen.blit(image, (0, 0))
-            #else:
             screen.blit(self.background, (0, 0))
-
             screen.blit(name_of_game, (0, 50))
             mp = pygame.mouse.get_pos()
             for i in self.punkts:

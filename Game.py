@@ -135,10 +135,11 @@ def Draw_Game(do_flip):
 
     for i in platforms:
         if isinstance(i, Flame) or\
-           isinstance(i, Exit) or \
            isinstance(i, Right_Arrow) or\
            isinstance(i, Left_Arrow):
             i.update()
+        elif isinstance(i, Exit):
+            i.update(hero)
 
     for i in monsters:
         i.update(platforms)
@@ -153,8 +154,10 @@ def Draw_Game(do_flip):
     info.fill((0, 0, 0))
     info_str = u"Счет: " + str(hero.num_of_coins)
     info_str += f"   Уровень: {num_of_level + 1}"
+    info_str += f"   Жизни: {hero.hp}"
     if hero.num_of_keycards > 0:
         info_str += ", Ключ!"
+
     info.blit(info_font.render(info_str, 1, (255, 255, 255)), (10, 5))
 
     message.fill((0, 0, 0))
@@ -313,6 +316,14 @@ while True:
             pygame.mixer.music.stop()
             hero.sound_of_death.play()
             pygame.time.wait(4000)
+
+            if hero.hp > 1:
+                hero.hp -= 1
+            else:
+
+                total_level_width, total_level_height, hero, run, right, left, up = create_level(levels[0])
+                camera = Camera(camera_configure, total_level_width, total_level_height)
+                num_of_level = 0
             pygame.mixer.music.play()
             hero.respawn()
 
@@ -343,7 +354,10 @@ while True:
                 pygame.mixer.music.pause()
                 start_menu.menu(True)
             if e.type == pygame.KEYDOWN and e.key == pygame.K_UP:
-                up = True
+                jump_time = pygame.time.get_ticks()
+
+                hero.image = IMAGE_PLAYER_UP
+
             if e.type == pygame.KEYDOWN and e.key == pygame.K_LEFT:
                 left = True
             if e.type == pygame.KEYDOWN and e.key == pygame.K_RIGHT:
@@ -352,7 +366,20 @@ while True:
                 run = True
 
             if e.type == pygame.KEYUP and e.key == pygame.K_UP:
-                up = False
+
+                ticks = (pygame.time.get_ticks() - jump_time) / 200 #200
+                if ticks > 0.60:
+                    ticks = 1
+                if ticks < 0.5:
+                    ticks = 0.5
+
+
+                if ticks > 0:
+                    hero.jump_mult = ticks
+                    up = True
+
+                    hero.sound_of_jump.play()
+
             if e.type == pygame.KEYUP and e.key == pygame.K_RIGHT:
                 right = False
             if e.type == pygame.KEYUP and e.key == pygame.K_LEFT:

@@ -36,6 +36,8 @@ class Player(sprite.Sprite):
         self.startX = x
         self.startY = y
 
+        self.hp = 3
+
         self.num_of_coins = 0
         self.num_of_keycards = 0
         self.onGround = False
@@ -63,9 +65,9 @@ class Player(sprite.Sprite):
 
         if up:
             if self.onGround:
-                self.y_speed = -JUMP_POWER
-                self.image = IMAGE_PLAYER_UP
-                self.sound_of_jump.play()
+                self.y_speed = -JUMP_POWER * self.jump_mult
+                self.image = IMAGE_PLAYER_STAY
+                self.jump_mult = 0
 
         if left:
             self.x_speed = -MOVE_SPEED
@@ -89,7 +91,8 @@ class Player(sprite.Sprite):
 
         if not self.onGround:
             self.y_speed += GRAVITY
-
+            if self.y_speed < 0:
+                self.image = IMAGE_PLAYER_UP
         self.onGround = False
         self.rect.y += self.y_speed
         self.collide(0, self.y_speed, platforms, monsters)
@@ -148,6 +151,7 @@ class Player(sprite.Sprite):
 
                     elif isinstance(p, Trampoline):
                         self.y_speed = -self.save_y * 1.25
+                        self.jump_mult = self.y_speed / (-JUMP_POWER)
                         self.sound_of_jump.play()
 
                 if isinstance(p, Exit):

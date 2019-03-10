@@ -19,6 +19,7 @@ EXIT_ANIM = [image.load("./images/Blocks/exit/exit1.png"),
              image.load("./images/Blocks/exit/exit2.png"),
              image.load("./images/Blocks/exit/exit3.png"),
              image.load("./images/Blocks/exit/exit4.png")]
+EXIT_CLOSED = image.load("./images/Blocks/exit/exit_closed.png")
 
 RIGHT_ANIM = [image.load("./images/Blocks/right/right1.png"),
              image.load("./images/Blocks/right/right2.png"),
@@ -117,19 +118,20 @@ class Exit(Platform):
         self.frame = 0
         self.image.fill(Color("black"))
         self.image.set_colorkey((0, 0, 0))
-        self.image = EXIT_ANIM[0]
+        self.image = EXIT_CLOSED
         self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 
-    def update(self):
+    def update(self, hero):
         self.count += 1
         if self.count == 20:
-            self.animate()
+            self.animate(hero)
             self.count = 0
 
-    def animate(self):
-        if self.frame < len(EXIT_ANIM) - 1:
-            self.frame += 1
-        else:
-            self.frame = 0
-        self.image = EXIT_ANIM[self.frame]
+    def animate(self, hero):
+        if hero.num_of_keycards != 0:
+            if self.frame < len(EXIT_ANIM) - 1:
+                self.frame += 1
+            else:
+                self.frame = 0
+            self.image = EXIT_ANIM[self.frame]
 
